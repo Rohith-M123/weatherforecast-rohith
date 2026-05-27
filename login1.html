@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather Dashboard - Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      margin: 40px auto;
+      text-align: left;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      outline: none;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+    
+    .form-group input:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+    }
+    
+    .form-group .input-error {
+      font-size: 0.8rem;
+      color: #f87171;
+      margin-top: 6px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .btn-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 30px;
+    }
+    
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.05rem;
+    }
+    
+    .btn-guest {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.05rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+    }
+    
+    .btn-guest:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--text-primary);
+      color: var(--text-primary);
+    }
+    
+    .portal-subtitle {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--text-secondary);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- Dynamic Atmospheric Background Elements -->
+  <div class="ambient-particles" id="particles"></div>
+
+  <div class="wrapper">
+    <main class="content">
+      
+      <div class="login-box glass-container">
+        <h1>Weather Dashboard</h1>
+        <p class="portal-subtitle">Access real-time meteorological insights</p>
+        
+        <form id="portal-form">
+          <div class="form-group">
+            <label for="USERNAME">Username</label>
+            <input type="text" id="USERNAME" placeholder="Enter at least 5 characters" required autocomplete="username">
+            <div class="input-error" id="error-username">Username must be at least 5 characters long.</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="EMAIL">Email Address</label>
+            <input type="email" id="EMAIL" placeholder="yourname@gmail.com" required autocomplete="email">
+            <div class="input-error" id="error-email">Please enter a valid Gmail address (ending in @gmail.com).</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="PASSWORD">Password</label>
+            <input type="password" id="PASSWORD" placeholder="••••••••" required autocomplete="current-password">
+            <div class="input-error" id="error-password">Must be 8+ characters, include 1 uppercase, 1 number, and 1 special symbol.</div>
+          </div>
+          
+          <div class="btn-container">
+            <button type="submit" class="btn btn-submit">Sign In</button>
+            <button type="button" class="btn btn-guest" id="btn-guest">Continue as Guest</button>
+          </div>
+        </form>
+      </div>
+
+    </main>
+
+    <!-- Sleek Toast Notification -->
+    <div class="toast" id="toast">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      <span id="toast-message">Success! Redirecting...</span>
+    </div>
+
+    <footer class="footer">
+      <p>Developed and Designed by <strong>Rohith®</strong></p>
+    </footer>
+  </div>
+
+  <script>
+    // Particle Engine for visual aesthetic on load (Dynamically reacts to time of day!)
+    const makeParticles = () => {
+      const container = document.getElementById("particles");
+      container.innerHTML = "";
+      
+      const hour = new Date().getHours();
+      
+      if (hour >= 6 && hour < 17) {
+        // Daytime: Sunny with soft drifting clouds
+        document.body.classList.add("clear-sky");
+        
+        // Solar Pulse Glow
+        const sun = document.createElement("div");
+        sun.className = "sunny-glow";
+        container.appendChild(sun);
+        
+        // Parallax Clouds
+        for (let i = 0; i < 3; i++) {
+          const cloud = document.createElement("div");
+          cloud.className = "parallax-cloud";
+          cloud.style.top = `${Math.random() * 35 + 5}%`;
+          cloud.style.width = `${Math.random() * 200 + 120}px`;
+          cloud.style.height = `${Math.random() * 80 + 40}px`;
+          cloud.style.animationDuration = `${Math.random() * 60 + 80}s`;
+          cloud.style.animationDelay = `-${Math.random() * 60}s`;
+          cloud.style.opacity = "0.45";
+          container.appendChild(cloud);
+        }
+      } else if (hour >= 17 && hour < 19) {
+        // Sunset/Dusk: Rolling Fog / Mist
+        document.body.classList.add("mist");
+        
+        const fog = document.createElement("div");
+        fog.className = "fog-layer";
+        fog.style.animationDuration = "45s";
+        fog.style.opacity = "0.65";
+        container.appendChild(fog);
+        
+        // Soft clouds
+        for (let i = 0; i < 2; i++) {
+          const cloud = document.createElement("div");
+          cloud.className = "parallax-cloud";
+          cloud.style.top = `${Math.random() * 30 + 10}%`;
+          cloud.style.width = `${Math.random() * 150 + 100}px`;
+          cloud.style.height = `${Math.random() * 60 + 40}px`;
+          cloud.style.animationDuration = `${Math.random() * 50 + 70}s`;
+          container.appendChild(cloud);
+        }
+      } else {
+        // Night: Starry Slate with glowing starlight sparkles
+        document.body.classList.add("thunderstorm"); // Deep indigo slate gradient background
+        
+        // Star points (sparkling drift)
+        for (let i = 0; i < 25; i++) {
+          const star = document.createElement("div");
+          star.className = "snowflake"; // Reuse snowflake drift animation
+          star.style.background = "#ffffff";
+          star.style.left = `${Math.random() * 100}%`;
+          star.style.top = `-${Math.random() * 50}px`;
+          star.style.animationDuration = `${Math.random() * 12 + 10}s`;
+          star.style.animationDelay = `${Math.random() * 5}s`;
+          
+          const size = Math.random() * 3 + 1;
+          star.style.width = star.style.height = `${size}px`;
+          star.style.opacity = `${Math.random() * 0.8 + 0.2}`;
+          container.appendChild(star);
+        }
+      }
+    };
+    makeParticles();
+
+    // Theme & Toggle Controller
+    (() => {
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = "theme-toggle-btn";
+      toggleBtn.title = "Toggle Light/Dark Mode";
+      toggleBtn.style.position = "fixed";
+      toggleBtn.style.top = "20px";
+      toggleBtn.style.right = "20px";
+      toggleBtn.style.width = "44px";
+      toggleBtn.style.height = "44px";
+      toggleBtn.style.borderRadius = "50%";
+      toggleBtn.style.background = "var(--card-bg)";
+      toggleBtn.style.border = "1px solid var(--card-border)";
+      toggleBtn.style.color = "var(--text-primary)";
+      toggleBtn.style.display = "flex";
+      toggleBtn.style.alignItems = "center";
+      toggleBtn.style.justifyContent = "center";
+      toggleBtn.style.cursor = "pointer";
+      toggleBtn.style.zIndex = "1001";
+      toggleBtn.style.boxShadow = "var(--shadow-sm)";
+      toggleBtn.style.backdropFilter = "blur(10px)";
+      toggleBtn.style.transition = "var(--transition)";
+
+      const moonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary);"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      const sunSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fbbf24;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+
+      const currentTheme = localStorage.getItem("weather_theme") || "dark";
+      if (currentTheme === "light") {
+        document.body.classList.add("light-theme");
+        toggleBtn.innerHTML = moonSvg;
+      } else {
+        toggleBtn.innerHTML = sunSvg;
+      }
+
+      toggleBtn.addEventListener("mouseover", () => {
+        toggleBtn.style.transform = "scale(1.1) rotate(15deg)";
+        toggleBtn.style.borderColor = "var(--accent-primary)";
+      });
+      toggleBtn.addEventListener("mouseout", () => {
+        toggleBtn.style.transform = "scale(1) rotate(0deg)";
+        toggleBtn.style.borderColor = "var(--card-border)";
+      });
+
+      toggleBtn.addEventListener("click", () => {
+        if (document.body.classList.contains("light-theme")) {
+          document.body.classList.remove("light-theme");
+          localStorage.setItem("weather_theme", "dark");
+          toggleBtn.innerHTML = sunSvg;
+        } else {
+          document.body.classList.add("light-theme");
+          localStorage.setItem("weather_theme", "light");
+          toggleBtn.innerHTML = moonSvg;
+        }
+      });
+
+      document.body.appendChild(toggleBtn);
+    })();
+
+
+    // Inline Toast System
+    const showToast = (message, isError = false) => {
+      const toast = document.getElementById("toast");
+      const text = document.getElementById("toast-message");
+      text.innerText = message;
+      
+      if (isError) {
+        toast.classList.add("error");
+        toast.querySelector("svg").innerHTML = '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>';
+      } else {
+        toast.classList.remove("error");
+        toast.querySelector("svg").innerHTML = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>';
+      }
+      
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3500);
+    };
+
+    // Validation and Form Handling
+    const portalForm = document.getElementById("portal-form");
+    const guestBtn = document.getElementById("btn-guest");
+
+    const validateInputs = () => {
+      const username = document.getElementById("USERNAME").value.trim();
+      const email = document.getElementById("EMAIL").value.trim();
+      const password = document.getElementById("PASSWORD").value;
+
+      let isValid = true;
+
+      // Username Validation
+      const errUser = document.getElementById("error-username");
+      if (username.length < 5) {
+        errUser.style.display = "block";
+        isValid = false;
+      } else {
+        errUser.style.display = "none";
+      }
+
+      // Email Validation
+      const errEmail = document.getElementById("error-email");
+      if (!email.endsWith("@gmail.com")) {
+        errEmail.style.display = "block";
+        isValid = false;
+      } else {
+        errEmail.style.display = "none";
+      }
+
+      // Password Validation
+      const errPass = document.getElementById("error-password");
+      const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordPattern.test(password)) {
+        errPass.style.display = "block";
+        isValid = false;
+      } else {
+        errPass.style.display = "none";
+      }
+
+      return isValid;
+    };
+
+    portalForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      
+      if (validateInputs()) {
+        const username = document.getElementById("USERNAME").value.trim();
+        localStorage.setItem("weather_user", username);
+        showToast("Authenticated successfully. Preparing your dashboard...");
+        
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1200);
+      } else {
+        showToast("Authentication failed. Please check form parameters.", true);
+      }
+    });
+
+    guestBtn.addEventListener("click", () => {
+      localStorage.setItem("weather_user", "Guest Traveler");
+      showToast("Access granted as Guest. Welcome!");
+      
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 1200);
+    });
+  </script>
+</body>
+</html>

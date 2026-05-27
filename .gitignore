@@ -1,0 +1,15 @@
+# API Configurations (Sensitive Keys)
+config.js
+
+# Local environment files
+.env
+.env.local
+
+# IDE configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

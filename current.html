@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather Dashboard - Real-time Conditions</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="config.js" defer></script>
+  <script src="current.js" defer></script>
+</head>
+<body>
+
+  <!-- Dynamic Ambient Meteorology Particles -->
+  <div class="ambient-particles" id="particles"></div>
+
+  <div class="wrapper">
+
+    <!-- Main Content -->
+    <main class="content">
+      <div class="container" style="max-width: 1100px;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px;">
+          <a class="back-btn" href="index.html" style="margin-top: 0;">← Back to Launcher</a>
+          <h2 style="font-weight: 700; background: linear-gradient(to right, #fff, var(--accent-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Live Conditions</h2>
+        </div>
+
+        <!-- Search Bar Component -->
+        <div class="weather-input glass-container" style="padding: 16px; border-radius: 16px; margin-bottom: 24px;">
+          <input class="city-input" type="text" placeholder="Search by city name... (e.g., London, Tokyo, New York)">
+          <button class="search-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Search</span>
+          </button>
+          <button class="location-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span>Geolocate</span>
+          </button>
+        </div>
+
+        <!-- Two Column Main Workspace Grid -->
+        <div class="weather-dashboard-grid">
+          
+          <!-- Sidebar: Pinned Locations -->
+          <div class="glass-container" style="padding: 20px; border-radius: 16px; height: fit-content;">
+            <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary);"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>Pinned Locations</span>
+            </h3>
+            
+            <div class="pinned-cities-container" id="pinned-locations">
+              <!-- Dynamically populated from localStorage -->
+              <p style="font-size: 0.9rem; color: var(--text-secondary); text-align: center; padding: 20px 0;">No pinned locations yet. Search a city and click the pin icon to save it!</p>
+            </div>
+          </div>
+
+          <!-- Main Weather Workspace -->
+          <div class="glass-container" style="padding: 24px; border-radius: 16px; min-height: 400px;" id="weather-display-container">
+            
+            <!-- Default Welcome Display -->
+            <div id="welcome-message" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 350px; text-align: center;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary); margin-bottom: 20px; animation: pulse 2s infinite;"><path d="M17 18a5 5 0 0 0-10 0"></path><line x1="12" y1="2" x2="12" y2="9"></line><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line><line x1="1" y1="18" x2="3" y2="18"></line><line x1="21" y1="18" x2="23" y2="18"></line><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line><circle cx="12" cy="18" r="4"></circle></svg>
+              <h3 style="margin-bottom: 10px;">Awaiting Search Coordinates</h3>
+              <p style="max-width: 400px;">Enter a city name above or select "Geolocate" to fetch detailed atmospheric analytics and microclimate readings.</p>
+            </div>
+
+            <!-- Loading Spinner State -->
+            <div id="loading-spinner" style="display: none; height: 100%; min-height: 350px;">
+              <div class="spinner-wrapper" style="margin-top: 100px;">
+                <div class="spinner"></div>
+                <p style="font-weight: 500; color: var(--accent-primary);">Analyzing meteorological feeds...</p>
+              </div>
+            </div>
+
+            <!-- Loaded Weather Results -->
+            <div id="weather-data-content" style="display: none;">
+              <!-- Main Hero Banner -->
+              <div class="current-weather-hero">
+                <div class="hero-main">
+                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <h2 id="weather-city-name">City Name</h2>
+                    <button id="btn-pin-city" style="background: none; border: none; padding: 4px; cursor: pointer; color: var(--text-secondary); width: auto; margin-bottom: 0; display: inline-flex;" title="Pin location">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    </button>
+                  </div>
+                  <span id="weather-condition" style="color: var(--accent-primary); text-transform: capitalize; font-weight: 500; font-size: 1.1rem; letter-spacing: 0.5px;">Condition Description</span>
+                </div>
+                
+                <div class="hero-temp-details">
+                  <img id="weather-icon" src="" alt="Icon">
+                  <span class="hero-temp-value" id="weather-temp">0°C</span>
+                </div>
+              </div>
+
+              <!-- High-Detail Metrics Grid -->
+              <div class="weather-stats-grid">
+                
+                <!-- Stat Card: Feels Like -->
+                <div class="stat-card">
+                  <div class="stat-icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                  </div>
+                  <div class="stat-info">
+                    <h5>Feels Like</h5>
+                    <p id="stat-feels-like">0°C</p>
+                  </div>
+                </div>
+
+                <!-- Stat Card: Humidity -->
+                <div class="stat-card">
+                  <div class="stat-icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                  </div>
+                  <div class="stat-info">
+                    <h5>Humidity</h5>
+                    <p id="stat-humidity">0%</p>
+                  </div>
+                </div>
+
+                <!-- Stat Card: Wind -->
+                <div class="stat-card">
+                  <div class="stat-icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </div>
+                  <div class="stat-info">
+                    <h5>Wind Speed</h5>
+                    <p id="stat-wind">0 m/s</p>
+                  </div>
+                </div>
+
+                <!-- Stat Card: Air Quality (AQI) -->
+                <div class="stat-card">
+                  <div class="stat-icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>
+                  </div>
+                  <div class="stat-info">
+                    <h5>Air Quality (AQI)</h5>
+                    <p id="stat-aqi">Good (1/5)</p>
+                  </div>
+                </div>
+
+                <!-- Stat Card: Pressure -->
+                <div class="stat-card">
+                  <div class="stat-icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                  </div>
+                  <div class="stat-info">
+                    <h5>Pressure</h5>
+                    <p id="stat-pressure">1013 hPa</p>
+                  </div>
+                </div>
+
+                <!-- Stat Card: Visibility -->
+                <div class="stat-card">
+                  <div class="stat-icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  </div>
+                  <div class="stat-info">
+                    <h5>Visibility</h5>
+                    <p id="stat-visibility">10 km</p>
+                  </div>
+                </div>
+
+                <!-- Stat Card: Sunrise -->
+                <div class="stat-card">
+                  <div class="stat-icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 11l7-7 7 7M5 19h14" /></svg>
+                  </div>
+                  <div class="stat-info">
+                    <h5>Sunrise</h5>
+                    <p id="stat-sunrise">06:00 AM</p>
+                  </div>
+                </div>
+
+                <!-- Stat Card: Sunset -->
+                <div class="stat-card">
+                  <div class="stat-icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 13l-7 7-7-7m14-5H5" /></svg>
+                  </div>
+                  <div class="stat-info">
+                    <h5>Sunset</h5>
+                    <p id="stat-sunset">06:00 PM</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Sleek Toast Notification -->
+    <div class="toast" id="toast">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="12" x2="12.01" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line><circle cx="12" cy="8" r="1"></circle></svg>
+      <span id="toast-message">Info Message</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Developed and Designed by <strong>Rohith®</strong></p>
+    </footer>
+
+  </div>
+</body>
+</html>

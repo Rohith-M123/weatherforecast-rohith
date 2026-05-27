@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather Dashboard - Home</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .launcher-card {
+      width: 100%;
+      max-width: 680px;
+      margin: 20px auto;
+      text-align: center;
+    }
+    
+    .greeting-header {
+      margin-bottom: 15px;
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+    
+    .greeting-desc {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      margin-bottom: 40px;
+    }
+
+    .user-profile-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      margin-bottom: 25px;
+      color: var(--accent-primary);
+    }
+    
+    .user-profile-badge svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--accent-primary);
+    }
+    
+    .btn-meta {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-top: 4px;
+    }
+    
+    .logout-btn-container {
+      margin-top: 40px;
+    }
+    
+    .logout-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: var(--transition);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .logout-btn:hover {
+      color: #f87171;
+    }
+    
+    .logout-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- Ambient Atmospheric Particles -->
+  <div class="ambient-particles" id="particles"></div>
+
+  <div class="wrapper">
+    <main class="content">
+      
+      <div class="launcher-card glass-container">
+        
+        <div class="user-profile-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <span id="display-user">Traveler</span>
+        </div>
+        
+        <h1 class="greeting-header" id="greeting-title">Welcome to the Dashboard</h1>
+        <p class="greeting-desc">Choose an interface below to explore full meteorological models and data analytics.</p>
+        
+        <div class="button-group">
+          <a href="current.html" class="main-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+            </svg>
+            <span>Current Conditions</span>
+            <span class="btn-meta">Real-time local metrics, weather attributes, & Air Quality Indexes.</span>
+          </a>
+          
+          <a href="forecast.html" class="main-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <span>5-Day Forecasting</span>
+            <span class="btn-meta">Detailed temperature charts, trend curves, & visual forecasts.</span>
+          </a>
+        </div>
+        
+        <div class="logout-btn-container">
+          <button class="logout-btn" id="btn-logout">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>Disconnect Session</span>
+          </button>
+        </div>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>Developed and Designed by <strong>Rohith®</strong></p>
+    </footer>
+  </div>
+
+  <script>
+    // Security & User State Engine
+    const user = localStorage.getItem("weather_user");
+    if (!user) {
+      // Direct unauthorized users back to login
+      window.location.href = "login1.html";
+    } else {
+      document.getElementById("display-user").innerText = user;
+      
+      // Dynamic Greeting based on current local time
+      const hour = new Date().getHours();
+      let greeting = "Welcome";
+      let icon = "✨";
+      
+      if (hour >= 5 && hour < 12) {
+        greeting = "Good Morning";
+        icon = "🌤️";
+      } else if (hour >= 12 && hour < 17) {
+        greeting = "Good Afternoon";
+        icon = "☀️";
+      } else if (hour >= 17 && hour < 22) {
+        greeting = "Good Evening";
+        icon = "🌙";
+      } else {
+        greeting = "Good Night";
+        icon = "✨";
+      }
+      
+      document.getElementById("greeting-title").innerText = `${greeting}, ${user}! ${icon}`;
+    }
+
+    // Particle Background Generator (Reacts dynamically to current hour of the day!)
+    const makeParticles = () => {
+      const container = document.getElementById("particles");
+      container.innerHTML = "";
+      
+      const hour = new Date().getHours();
+      
+      if (hour >= 6 && hour < 17) {
+        // Daytime: Sunny with soft drifting clouds
+        document.body.classList.add("clear-sky");
+        
+        // Solar Pulse
+        const sun = document.createElement("div");
+        sun.className = "sunny-glow";
+        container.appendChild(sun);
+        
+        // Parallax Clouds
+        for (let i = 0; i < 3; i++) {
+          const cloud = document.createElement("div");
+          cloud.className = "parallax-cloud";
+          cloud.style.top = `${Math.random() * 35 + 5}%`;
+          cloud.style.width = `${Math.random() * 200 + 120}px`;
+          cloud.style.height = `${Math.random() * 80 + 40}px`;
+          cloud.style.animationDuration = `${Math.random() * 60 + 85}s`;
+          cloud.style.animationDelay = `-${Math.random() * 60}s`;
+          cloud.style.opacity = "0.45";
+          container.appendChild(cloud);
+        }
+      } else if (hour >= 17 && hour < 19) {
+        // Sunset/Dusk: Rolling Fog / Mist
+        document.body.classList.add("mist");
+        
+        const fog = document.createElement("div");
+        fog.className = "fog-layer";
+        fog.style.animationDuration = "45s";
+        fog.style.opacity = "0.65";
+        container.appendChild(fog);
+        
+        // Soft clouds
+        for (let i = 0; i < 2; i++) {
+          const cloud = document.createElement("div");
+          cloud.className = "parallax-cloud";
+          cloud.style.top = `${Math.random() * 30 + 10}%`;
+          cloud.style.width = `${Math.random() * 150 + 100}px`;
+          cloud.style.height = `${Math.random() * 60 + 40}px`;
+          cloud.style.animationDuration = `${Math.random() * 50 + 70}s`;
+          container.appendChild(cloud);
+        }
+      } else {
+        // Night: Starry Slate with glowing starlight sparkles
+        document.body.classList.add("thunderstorm"); // Indigo slate gradient background
+        
+        // Star sparkles
+        for (let i = 0; i < 25; i++) {
+          const star = document.createElement("div");
+          star.className = "snowflake"; // Reuse snowflake drift animation
+          star.style.background = "#ffffff";
+          star.style.left = `${Math.random() * 100}%`;
+          star.style.top = `-${Math.random() * 50}px`;
+          star.style.animationDuration = `${Math.random() * 12 + 10}s`;
+          star.style.animationDelay = `${Math.random() * 5}s`;
+          
+          const size = Math.random() * 3 + 1;
+          star.style.width = star.style.height = `${size}px`;
+          star.style.opacity = `${Math.random() * 0.8 + 0.2}`;
+          container.appendChild(star);
+        }
+      }
+    };
+    makeParticles();
+
+    // Theme & Toggle Controller
+    (() => {
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = "theme-toggle-btn";
+      toggleBtn.title = "Toggle Light/Dark Mode";
+      toggleBtn.style.position = "fixed";
+      toggleBtn.style.top = "20px";
+      toggleBtn.style.right = "20px";
+      toggleBtn.style.width = "44px";
+      toggleBtn.style.height = "44px";
+      toggleBtn.style.borderRadius = "50%";
+      toggleBtn.style.background = "var(--card-bg)";
+      toggleBtn.style.border = "1px solid var(--card-border)";
+      toggleBtn.style.color = "var(--text-primary)";
+      toggleBtn.style.display = "flex";
+      toggleBtn.style.alignItems = "center";
+      toggleBtn.style.justifyContent = "center";
+      toggleBtn.style.cursor = "pointer";
+      toggleBtn.style.zIndex = "1001";
+      toggleBtn.style.boxShadow = "var(--shadow-sm)";
+      toggleBtn.style.backdropFilter = "blur(10px)";
+      toggleBtn.style.transition = "var(--transition)";
+
+      const moonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-primary);"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      const sunSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fbbf24;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+
+      const currentTheme = localStorage.getItem("weather_theme") || "dark";
+      if (currentTheme === "light") {
+        document.body.classList.add("light-theme");
+        toggleBtn.innerHTML = moonSvg;
+      } else {
+        toggleBtn.innerHTML = sunSvg;
+      }
+
+      toggleBtn.addEventListener("mouseover", () => {
+        toggleBtn.style.transform = "scale(1.1) rotate(15deg)";
+        toggleBtn.style.borderColor = "var(--accent-primary)";
+      });
+      toggleBtn.addEventListener("mouseout", () => {
+        toggleBtn.style.transform = "scale(1) rotate(0deg)";
+        toggleBtn.style.borderColor = "var(--card-border)";
+      });
+
+      toggleBtn.addEventListener("click", () => {
+        if (document.body.classList.contains("light-theme")) {
+          document.body.classList.remove("light-theme");
+          localStorage.setItem("weather_theme", "dark");
+          toggleBtn.innerHTML = sunSvg;
+        } else {
+          document.body.classList.add("light-theme");
+          localStorage.setItem("weather_theme", "light");
+          toggleBtn.innerHTML = moonSvg;
+        }
+      });
+
+      document.body.appendChild(toggleBtn);
+    })();
+
+
+    // Session termination click event
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      localStorage.removeItem("weather_user");
+      window.location.href = "login1.html";
+    });
+  </script>
+</body>
+</html>
