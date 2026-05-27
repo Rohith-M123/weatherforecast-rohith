@@ -4,40 +4,8 @@ if (!sessionUser) {
   window.location.href = "login1.html";
 }
 
-// Resolve the API Key safely with a local try/catch block
-let localApiKey = "";
-try {
-  localApiKey = API_KEY;
-} catch (e) {
-  localApiKey = "";
-}
+// API_KEY is resolved globally from config.js
 
-// Global API URL Builder (supports Local file fallback vs Vercel Serverless proxy)
-const getApiUrl = (params) => {
-  const isLocal = window.location.hostname === "localhost" || 
-                  window.location.hostname === "127.0.0.1" || 
-                  window.location.protocol === "file:";
-  
-  if (isLocal) {
-    const key = localApiKey || "e301e76642e5894f2182a3398948469c"; // Fallback to default key if config fails to resolve
-    
-    if (params.endpoint === "direct") {
-      return `https://api.openweathermap.org/geo/1.0/direct?q=${params.q}&limit=${params.limit || 1}&appid=${key}`;
-    } else if (params.endpoint === "reverse") {
-      return `https://api.openweathermap.org/geo/1.0/reverse?lat=${params.lat}&lon=${params.lon}&limit=${params.limit || 1}&appid=${key}`;
-    } else if (params.endpoint === "weather") {
-      return `https://api.openweathermap.org/data/2.5/weather?lat=${params.lat}&lon=${params.lon}&appid=${key}`;
-    } else if (params.endpoint === "aqi") {
-      return `https://api.openweathermap.org/data/2.5/air_pollution?lat=${params.lat}&lon=${params.lon}&appid=${key}`;
-    } else if (params.endpoint === "forecast") {
-      return `https://api.openweathermap.org/data/2.5/forecast?lat=${params.lat}&lon=${params.lon}&appid=${key}`;
-    }
-  } else {
-    // Production (Vercel): Proxy all requests securely via Vercel Serverless Functions
-    const query = new URLSearchParams(params).toString();
-    return `/api/weather?${query}`;
-  }
-};
 
 // DOM Element references
 const cityInput = document.querySelector(".city-input");
@@ -308,8 +276,8 @@ const renderWeatherData = (cityName, weatherData, pollutionData) => {
 const fetchDetailedWeather = (lat, lon, cityName) => {
   setDisplayState("loading");
   
-  const weatherUrl = getApiUrl({ endpoint: "weather", lat, lon });
-  const pollutionUrl = getApiUrl({ endpoint: "aqi", lat, lon });
+  const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+  const pollutionUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
   
   Promise.all([
     fetch(weatherUrl).then(res => {
@@ -341,7 +309,7 @@ const fetchCoordinatesByName = () => {
   
   setDisplayState("loading");
   
-  fetch(getApiUrl({ endpoint: "direct", q: city, limit: 1 }))
+  fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`)
     .then(res => res.json())
     .then(data => {
       if (!data.length) {
@@ -371,7 +339,7 @@ const fetchCoordinatesByBrowser = () => {
     (position) => {
       const { latitude, longitude } = position.coords;
       
-      fetch(getApiUrl({ endpoint: "reverse", lat: latitude, lon: longitude, limit: 1 }))
+      fetch(`https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${API_KEY}`)
         .then(res => res.json())
         .then(data => {
           const cityName = data[0]?.name || "Local Base";
